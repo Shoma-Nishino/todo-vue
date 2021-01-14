@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <title>todo-vue</title>
+</head>
+<body>
+    <div id="app">
+        <h2>Todos:</h2>
+        <ol>
+          <li v-for="(todo, index) in todos">
+            <label>
+              <input type="checkbox"
+                @change="toggle(todo)"
+                :checked="todo.done">
+
+              <del v-if="todo.done">
+                {{ todo.text }}
+                <button class="deleteButton" @click="todoDelete(index)">タスク削除</button>
+              </del>
+              <span v-else>
+                {{ todo.text }}
+              </span>
+            </label>
+          </li>
+        </ol>
+        <input v-model="newTaskName">
+        <button @click="todoAdd">タスク追加</button>
+        <p>{{error}}</p>
+        <button @click="taskSort">タスク並び替え</button>
+    </div>
+</body>
+</html>
+
+<script>
+const app = new Vue({
+    el: "#app",
+    data: {
+        todos: [
+            { text: "Task1", done: false },
+            { text: "Task2", done: false },
+            { text: "Task3", done: false },
+            { text: "Task4", done: false }
+        ],
+        newTaskName: '',
+        error: ''
+    },
+    methods: {
+        toggle: function(todo){
+            todo.done = !todo.done
+        },
+
+        todoAdd() {
+            if (this.newTaskName === '') {
+                return this.error = "空文字です。タスク名を入力してね"
+            }
+
+            let todoNames = this.todos.map(todo => todo.text)
+
+            if (todoNames.includes(this.newTaskName)) {
+                return this.error = "重複してます。"
+            }
+
+            this.todos = this.todos.concat({
+                text: this.newTaskName,
+                done: false
+            })
+
+            this.newTaskName = ''
+            this.error = ''
+        },
+
+        todoDelete(index) {
+            this.todos = this.todos.filter((todo, num) => num !== index)
+        },
+
+        taskSort() {
+            this.todos.sort((a, b) => {
+            if (a.done === b.done) {
+                return 0
+            }
+
+            if (a.done && !b.done) {
+                return 1
+            }
+
+            if (!a.done && b.done) {
+                return -1
+            }
+            })
+        }
+    }
+})
+</script>
+
+<style>
+    body {
+        background: #333;
+        padding: 20px;
+        font-family: Helvetica;
+    }
+
+    .deleteButton {
+        margin-left: 20px;
+    }
+
+    input {
+        padding: 4px;
+    }
+
+    #app {
+        background: #fff;
+        padding: 20px;
+    }
+
+    li {
+        margin: 8px 0;
+    }
+
+    h2 {
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    del {
+        color: rgba(0, 0, 0, 0.4);
+    }
+</style>
